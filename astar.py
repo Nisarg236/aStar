@@ -1,156 +1,233 @@
-import pygame
-import math
+import numpy as np
 from queue import PriorityQueue
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import pygame
+import numpy as np
 
-# Initialize Pygame
-pygame.init()
 
-# Set up display
-WIDTH, HEIGHT = 800, 800
-win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("A* Pathfinding")
-
-# Define grid parameters
-ROWS = 50
-COLS = 50
-GRID_SIZE = WIDTH // ROWS
-
-# Define node class
 class Node:
-    def __init__(self, row, col):
-        self.row = row
-        self.col = col
-        self.x = row * GRID_SIZE
-        self.y = col * GRID_SIZE
-        self.color = (255,255,255)
-        self.neighbors = []
+    def __init__(self, x, y, g, h, parent):
+        self.x = x
+        self.y = y
+        self.g = g
+        self.h = h
+        self.f = g + h
+        self.parent = parent
+        self.id = (x, y)
 
-    def draw(self, win):
-        pygame.draw.rect(win, self.color, (self.x, self.y, GRID_SIZE, GRID_SIZE))
 
-    def update_neighbors(self, grid):
-        self.neighbors = []
-        if self.row < ROWS - 1 and not grid[self.row + 1][self.col].color == (0,0,0):
-            self.neighbors.append(grid[self.row + 1][self.col])
-        if self.row > 0 and not grid[self.row - 1][self.col].color == (0,0,0):
-            self.neighbors.append(grid[self.row - 1][self.col])
-        if self.col < COLS - 1 and not grid[self.row][self.col + 1].color == (0,0,0):
-            self.neighbors.append(grid[self.row][self.col + 1])
-        if self.col > 0 and not grid[self.row][self.col - 1].color == (0,0,0):
-            self.neighbors.append(grid[self.row][self.col - 1])
+def heuristic(node, goal, heuristic_function):
+    if heuristic_function == "e":
+        value = 500 * np.sqrt((node.x - goal.x) ** 2 + (node.y - goal.y) ** 2)
+    if heuristic_function == "m":
+        value = 500 * abs(node.x - goal.x) + abs(node.y - goal.y)
+        return value
 
-# Heuristic function (Euclidean distance)
-def heuristic(node1, node2):
-    return 1.5*math.sqrt((node1.row - node2.row) ** 2 + (node1.col - node2.col) ** 2)
-    # return 1*(abs(node1.row - node2.row) + abs(node1.col - node2.col))
 
-# A* algorithm
-def astar_algorithm(grid, start, end):
+def find_neighbours(node, grid, goal, open_list):
+    neighbours = []
+    if node.x - 1 >= 0:
+        if grid[node.x - 1, node.y] == 1: 
+            neighbour_w = Node(node.x - 1, node.y, node.g + 10, 0, node)
+            neighbour_w.h = heuristic(neighbour_w, goal, heuristic_function)
+            neighbour_w.f = neighbour_w.h + neighbour_w.g
+            j = True
+            for i in open_list.queue:
+                if i[2].id == neighbour_w.id:
+                    j = False
+            if j == True:
+                neighbours.append(neighbour_w)
+
+    if node.x + 1 < grid.shape[0]:
+        if grid[node.x + 1, node.y] == 1:
+            neighbour_e = Node(node.x + 1, node.y, node.g + 10, 0, node)
+            neighbour_e.h = heuristic(neighbour_e, goal, heuristic_function)
+            neighbour_e.f = neighbour_e.h + neighbour_e.g
+            neighbours.append(neighbour_e)
+            j = True
+            for i in open_list.queue:
+                if i[2].id == neighbour_e.id:
+                    j = False
+            if j == True:
+                neighbours.append(neighbour_e)
+
+    if node.y - 1 >= 0:
+        if grid[node.x, node.y - 1] == 1:
+            neighbour_n = Node(node.x, node.y - 1, node.g + 10, 0, node)
+            neighbour_n.h = heuristic(neighbour_n, goal, heuristic_function)
+            neighbour_n.f = neighbour_n.h + neighbour_n.g
+            neighbours.append(neighbour_n)
+            j = True
+            for i in open_list.queue:
+                if i[2].id == neighbour_n.id:
+                    j = False
+            if j == True:
+                neighbours.append(neighbour_n)
+
+    if node.y + 1 < grid.shape[1]:
+        if grid[node.x, node.y + 1] == 1:
+            neighbour_s = Node(node.x, node.y + 1, node.g + 10, 0, node)
+            neighbour_s.h = heuristic(neighbour_s, goal, heuristic_function)
+            neighbour_s.f = neighbour_s.h + neighbour_s.g
+            neighbours.append(neighbour_s)
+            j = True
+            for i in open_list.queue:
+                if i[2].id == neighbour_s.id:
+                    j = False
+            if j == True:
+                neighbours.append(neighbour_s)
+
+    return neighbours
+
+
+def astar_algorithm(grid, start_node, goal_node, heuristic_function):
     count = 0
-    open_set = PriorityQueue()
-    open_set.put((0, count, start))
+    open_list = PriorityQueue()
+    open_list.put((0, count, start_node))
     came_from = {}
-    g_score = {node: float("inf") for row in grid for node in row}
-    g_score[start] = 0
-    f_score = {node: float("inf") for row in grid for node in row}
-    f_score[start] = heuristic(start, end)
+    g_score = {start_node: 0}
+    explored_nodes = []
 
-    while not open_set.empty():
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
+    while not open_list.empty():
+        print("Calculating path...")
+        current_node = open_list.get()[2]
+        a = True
+        for node in explored_nodes:
+            if current_node.id == node.id:
+                a = False
+        if a == True:
+            explored_nodes.append(current_node)
+        if current_node.x == goal_node.x and current_node.y == goal_node.y:
+            path = []
+            while current_node in came_from:
+                path.append(current_node)
+                current_node = came_from[current_node]
+            return path[::-1], explored_nodes  # Return reversed path
 
-        current = open_set.get()[2]
+        neighbors = find_neighbours(current_node, grid, goal_node, open_list)
+        for neighbor in neighbors:
+            if (
+                0 <= neighbor.x < grid.shape[0]
+                and 0 <= neighbor.y < grid.shape[1]
+                and grid[neighbor.x, neighbor.y] == 1
+            ):
+                g = g_score[current_node] + neighbor.g
 
-        if current == end:
-            reconstruct_path(came_from, end)
-            end.color = (255,0,0)
-            return True
-
-        for neighbor in current.neighbors:
-            temp_g_score = g_score[current] + 1
-
-            if temp_g_score < g_score[neighbor]:
-                came_from[neighbor] = current
-                g_score[neighbor] = temp_g_score
-                f_score[neighbor] = temp_g_score + heuristic(neighbor, end)
-                if neighbor not in [item[2] for item in open_set.queue]:
+                if neighbor not in g_score or g < g_score[neighbor]:
                     count += 1
-                    open_set.put((f_score[neighbor], count, neighbor))
-                    neighbor.color = (255,255,0)
+                    neighbor.f = g + heuristic(neighbor, goal_node, heuristic_function)
+                    j = True
+                    for i in open_list.queue:
+                        if neighbor.id == i[2].id:
+                            j = False
+                    if j == True:
+                        open_list.put((neighbor.f, count, neighbor))
+                        came_from[neighbor] = current_node
+                        g_score[neighbor] = g
 
-        draw_grid(grid)
-        pygame.display.update()
+    return None  
 
-        if current != start:
-            current.color = (0,0,255)
 
-    return False
+def visualize(grid, path=None, explored_nodes=None):
+    plt.matshow(grid, cmap="gray", origin="upper")
 
-# Reconstruct path
-def reconstruct_path(came_from, current):
-    while current in came_from:
-        current = came_from[current]
-        current.color = (0,255,0)
+    if explored_nodes:
+        i = 0
+        for node in explored_nodes:
+            plt.plot(node.y, node.x, color="blue", marker="s", markersize=10)
+            plt.pause(0.003)
+        for node in path:
+            plt.plot(node.y, node.x, color="red", marker="s", markersize=10)
+            plt.pause(0.003)
 
-# Draw grid
-def draw_grid(grid):
-    win.fill((0,0,0))
-    for row in grid:
-        for node in row:
-            node.draw(win)
-    pygame.display.update()
+    plt.title("A* Algorithm Visualization")
+    plt.xlabel("Y")
+    plt.ylabel("X")
+    plt.show()
 
-# Create grid
-def make_grid():
-    grid = [[Node(row, col) for col in range(COLS)] for row in range(ROWS)]
-    for row in grid:
-        for node in row:
-            node.update_neighbors(grid)
-    return grid
 
-# Main function
-def main():
-    grid = make_grid()
+def create_grid(grid, start_node, goal_node):
+    grid_size = grid.shape[:2]
+    cell_size = 20 
+    pygame.init()
 
-    start = grid[0][0]
-    end = grid[ROWS - 1][COLS - 1]
+    window_size = (grid_size[1] * cell_size, grid_size[0] * cell_size)
+    screen = pygame.display.set_mode(window_size)
+    pygame.display.set_caption("Click to make obstacles")
 
-    start.color = (0,255,0)
-    end.color = (255,0,0)
+    running = True
+    clock = pygame.time.Clock()
 
-    run = True
-    while run:
+    drawing_obstacle = False
+
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-
-            if pygame.mouse.get_pressed()[0]:  # Left mouse button
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button
+                    drawing_obstacle = True
+            elif event.type == pygame.MOUSEMOTION and drawing_obstacle:
                 pos = pygame.mouse.get_pos()
-                row = pos[0] // GRID_SIZE
-                col = pos[1] // GRID_SIZE
-                node = grid[row][col]
-                if node != start and node != end:
-                    node.color = (0,0,0)
+                j, i = pos[0] // cell_size, pos[1] // cell_size
+                grid[i, j] = 0  # Set obstacle
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Left mouse button
+                    drawing_obstacle = False
 
-            elif pygame.mouse.get_pressed()[2]:  # Right mouse button
-                pos = pygame.mouse.get_pos()
-                row = pos[0] // GRID_SIZE
-                col = pos[1] // GRID_SIZE
-                node = grid[row][col]
-                if node != start and node != end:
-                    node.color = (0,0,0)
+        screen.fill((255, 255, 255)) 
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    for row in grid:
-                        for node in row:
-                            node.update_neighbors(grid)
-                    astar_algorithm(grid, start, end)
+        for i in range(grid_size[0]):
+            for j in range(grid_size[1]):
+                if grid[i, j] == 0:
+                    pygame.draw.rect(
+                        screen,
+                        (0, 0, 0),
+                        (j * cell_size, i * cell_size, cell_size, cell_size),
+                    )
+                else:
+                    pygame.draw.rect(
+                        screen,
+                        (255, 255, 255),
+                        (j * cell_size, i * cell_size, cell_size, cell_size),
+                        1,
+                    )
 
-        draw_grid(grid)
+        pygame.draw.rect(
+            screen,
+            (0, 255, 0),
+            (start_node.y * cell_size, start_node.x * cell_size, cell_size, cell_size),
+        )
+
+        pygame.draw.rect(
+            screen,
+            (255, 0, 0),
+            (goal_node.y * cell_size, goal_node.x * cell_size, cell_size, cell_size),
+        )
+
+        pygame.display.flip()
+        clock.tick(60) 
 
     pygame.quit()
 
-if __name__ == "__main__":
-    main()
+    return grid
+
+
+grid_size = int(input("Please enter the Grid Size: "))
+heuristic_function = input(
+    "Heuristic function, enter e for Euclidian, m for manhattan :"
+)
+
+grid = np.ones((grid_size, grid_size), dtype=np.uint8)
+
+start_node = Node(0, 0, 0, 0, None)
+goal_node = Node(grid_size - 1, grid_size - 1, 0, 0, None)
+grid = create_grid(grid, start_node, goal_node)
+
+
+path, explored_nodes = astar_algorithm(grid, start_node, goal_node, heuristic_function)
+for node in path:
+    print(f"({node.x}, {node.y})", end=" -> ")
+
+visualize(grid, path, explored_nodes)
