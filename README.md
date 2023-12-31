@@ -30,7 +30,7 @@ In the output, the blue nodes represent the explored nodes, and the red nodes re
 ![image](https://github.com/Nisarg236/aStar/assets/71684502/51afc007-8970-4c45-9c85-4bbf3371e0ac)
 
 ## Output using Manhattan:
-![image](https://github.com/Nisarg236/aStar/assets/71684502/661fd050-e857-4515-bfc6-2600f2a3bd62)
+![image](https://github.com/Nisarg236/aStar/assets/71684502/d9a5ee41-169e-4ae1-b7c8-f331746de8a7)
 
 ## How to Contribute
 
