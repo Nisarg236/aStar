@@ -18,13 +18,19 @@ This repository contains a Python implementation of the A* algorithm with visual
 6. Drag the mouse on the white area to draw obstacles, then close the window.
 7. The algorithm will start, and upon completion, it will display the output.
 
-## Input Grid
+## Input grid
 ![image](https://github.com/Nisarg236/aStar/assets/71684502/6f93b30e-d9c3-497c-a7fe-dc461ce11fc3)
 
-## Output
+## Output with Euclidian:
 ![image](https://github.com/Nisarg236/aStar/assets/71684502/98e296e5-2d2f-459e-8737-76cf037bebc5)
 
 In the output, the blue nodes represent the explored nodes, and the red nodes represent the path.
+
+## Input grid:
+![image](https://github.com/Nisarg236/aStar/assets/71684502/51afc007-8970-4c45-9c85-4bbf3371e0ac)
+
+## Output using Manhattan:
+![image](https://github.com/Nisarg236/aStar/assets/71684502/661fd050-e857-4515-bfc6-2600f2a3bd62)
 
 ## How to Contribute
 
