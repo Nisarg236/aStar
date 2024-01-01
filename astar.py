@@ -32,11 +32,7 @@ def find_neighbours(node, grid, goal, open_list):
             neighbour_w = Node(node.x - 1, node.y, node.g + 10, 0, node)
             neighbour_w.h = heuristic(neighbour_w, goal, heuristic_function)
             neighbour_w.f = neighbour_w.h + neighbour_w.g
-            j = True
-            for i in open_list.queue:
-                if i[2].id == neighbour_w.id:
-                    j = False
-            if j == True:
+            if not any(i[2].id == neighbour_w.id for i in open_list.queue):
                 neighbours.append(neighbour_w)
 
     if node.x + 1 < grid.shape[0]:
@@ -44,12 +40,7 @@ def find_neighbours(node, grid, goal, open_list):
             neighbour_e = Node(node.x + 1, node.y, node.g + 10, 0, node)
             neighbour_e.h = heuristic(neighbour_e, goal, heuristic_function)
             neighbour_e.f = neighbour_e.h + neighbour_e.g
-            neighbours.append(neighbour_e)
-            j = True
-            for i in open_list.queue:
-                if i[2].id == neighbour_e.id:
-                    j = False
-            if j == True:
+            if not any(i[2].id == neighbour_e.id for i in open_list.queue):
                 neighbours.append(neighbour_e)
 
     if node.y - 1 >= 0:
@@ -57,12 +48,7 @@ def find_neighbours(node, grid, goal, open_list):
             neighbour_n = Node(node.x, node.y - 1, node.g + 10, 0, node)
             neighbour_n.h = heuristic(neighbour_n, goal, heuristic_function)
             neighbour_n.f = neighbour_n.h + neighbour_n.g
-            neighbours.append(neighbour_n)
-            j = True
-            for i in open_list.queue:
-                if i[2].id == neighbour_n.id:
-                    j = False
-            if j == True:
+            if not any(i[2].id == neighbour_n.id for i in open_list.queue):
                 neighbours.append(neighbour_n)
 
     if node.y + 1 < grid.shape[1]:
@@ -70,14 +56,8 @@ def find_neighbours(node, grid, goal, open_list):
             neighbour_s = Node(node.x, node.y + 1, node.g + 10, 0, node)
             neighbour_s.h = heuristic(neighbour_s, goal, heuristic_function)
             neighbour_s.f = neighbour_s.h + neighbour_s.g
-            neighbours.append(neighbour_s)
-            j = True
-            for i in open_list.queue:
-                if i[2].id == neighbour_s.id:
-                    j = False
-            if j == True:
+            if not any(i[2].id == neighbour_s.id for i in open_list.queue):
                 neighbours.append(neighbour_s)
-
     return neighbours
 
 
