@@ -19,10 +19,10 @@ class Node:
 
 def heuristic(node, goal, heuristic_function):
     if heuristic_function == "e":
-        value = 1000 * np.sqrt((node.x - goal.x) ** 2 + (node.y - goal.y) ** 2)
+        value = np.sqrt((node.x - goal.x) ** 2 + (node.y - goal.y) ** 2)
         return value
     if heuristic_function == "m":
-        value = 500 * abs(node.x - goal.x) + abs(node.y - goal.y)
+        value = abs(node.x - goal.x) + abs(node.y - goal.y)
         return value
 
 
@@ -61,77 +61,82 @@ def find_neighbours(node, grid, goal, open_list):
                 neighbours.append(neighbour_s)
     return neighbours
 
+def astar_algorithm(grid, start, goal, heuristic_function):
+    open_list = PriorityQueue() #We are using priority queue and arranging based on F score because we have to frequently fetch the node with least f score
+    closed_set = set() #set is used to prevent duplication
 
-def astar_algorithm(grid, start_node, goal_node, heuristic_function):
-    count = 0
-    open_list = PriorityQueue()
-    open_list.put((0, count, start_node))
-    came_from = {}
-    g_score = {start_node: 0}
-    explored_nodes = []
+    start_node = Node(start.x, start.y, 0, 0, None) #initialize the start node
+    goal_node = Node(goal.x, goal.y, 0, 0, None) #initialize the goal node
+
+    open_list.put((start_node.f, np.random.rand(), start_node)) #first we will put the start node in open list 
+    explored_nodes = [start_node] #this list we are maintaining only for visualization purposes
 
     while not open_list.empty():
-        print("Calculating path...")
-        current_node = open_list.get()[2]
+        current_node = open_list.get()[2] #get the current node from the open list
+        # open_list.pop(current_node) #remove current node from openlist
+        #if current node locations is same as goal node location then trace the parents to form path, this if block will run at last when we reach goal node
+        if current_node.id == goal_node.id:
+            path = []
+            while current_node:
+                path.append(current_node)
+                current_node = current_node.parent
+            return path[::-1], explored_nodes
+
+        neighbours = find_neighbours(current_node, grid, goal_node, open_list) #find neighbours of the current node 
+        closed_set.add(current_node) # put the current node in closed set
         
+        # #add current node to explored node if it is not there already
         if not any(node.id == current_node.id for node in explored_nodes):
             explored_nodes.append(current_node)
+        #loop through the neighbours
+        for neighbour in neighbours:
+            if neighbour.id in closed_set: #if the neighbour is in closed set, then it is already explored so donot constder that one
+                continue
 
-        if current_node.x == goal_node.x and current_node.y == goal_node.y:
-            path = []
-            while current_node in came_from:
-                path.append(current_node)
-                current_node = came_from[current_node]
-            return path[::-1], explored_nodes  # Return reversed path
-
-        neighbors = find_neighbours(current_node, grid, goal_node, open_list)
-        for neighbor in neighbors:
-            if (
-                0 <= neighbor.x < grid.shape[0]
-                and 0 <= neighbor.y < grid.shape[1]
-                and grid[neighbor.x, neighbor.y] == 1
-            ):
-                g = g_score[current_node] + neighbor.g
-
-                if neighbor not in g_score or g < g_score[neighbor]:
-                    count += 1
-                    neighbor.f = g + heuristic(neighbor, goal_node, heuristic_function)
-
-                    if not any(neighbor.id == i[2].id for i in open_list.queue):
-                        open_list.put((neighbor.f, count, neighbor))
-                        came_from[neighbor] = current_node
-                        g_score[neighbor] = g
-    
-    return None  
-
+            if neighbour.f < current_node.f or not any(i[2].id == neighbour.id for i in open_list.queue): #if the F score of a neighbour is less than current node and it is not already a part of open list then add it to the open list
+                open_list.put((neighbour.f, np.random.rand(), neighbour)) #put the neighbour in open list based on F score
+    return None, None
 
 def visualize(grid, path=None, explored_nodes=None):
+    # Create a figure and axis for the visualization
     fig, ax = plt.subplots()
     ax.matshow(grid, cmap="gray", origin="upper")
 
+    # Plot the explored nodes if provided
     if explored_nodes:
+        # Extract the coordinates of explored nodes
         explored_points = np.array([(node.y, node.x) for node in explored_nodes])
+        # Scatter plot for explored nodes
         explored_scatter = ax.scatter([], [], color="blue", marker="s", s=50)
 
+    # Plot the path if provided
     if path:
+        # Extract the coordinates of path nodes
         path_points = np.array([(node.y, node.x) for node in path])
+        # Scatter plot for path nodes
         path_scatter = ax.scatter([], [], color="red", marker="s", s=50)
 
     def update(frame):
+        # Update the scatter plot for explored nodes
         if frame < len(explored_nodes):
             explored_scatter.set_offsets(explored_points[:frame + 1])
+        # Update the scatter plot for the path nodes
         elif frame < len(explored_nodes) + len(path):
             path_frame = frame - len(explored_nodes)
             path_scatter.set_offsets(path_points[:path_frame + 1])
 
+    # Total frames for the animation
     frames = len(explored_nodes) + len(path)
-    anim = FuncAnimation(fig, update, frames=frames, interval=50, repeat=False)
+    # Create the animation using FuncAnimation
+    anim = FuncAnimation(fig, update, frames=frames, interval=0, repeat=False)
 
+    # Set title and labels for the plot
     plt.title("A* Algorithm Visualization")
     plt.xlabel("Y")
     plt.ylabel("X")
-    plt.show()
 
+    # Display the animation
+    plt.show()
 
 def create_grid(grid, start_node, goal_node):
     grid_size = grid.shape[:2]
