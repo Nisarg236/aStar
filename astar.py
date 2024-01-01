@@ -19,7 +19,8 @@ class Node:
 
 def heuristic(node, goal, heuristic_function):
     if heuristic_function == "e":
-        value = 500 * np.sqrt((node.x - goal.x) ** 2 + (node.y - goal.y) ** 2)
+        value = 1000 * np.sqrt((node.x - goal.x) ** 2 + (node.y - goal.y) ** 2)
+        return value
     if heuristic_function == "m":
         value = 500 * abs(node.x - goal.x) + abs(node.y - goal.y)
         return value
