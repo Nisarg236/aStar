@@ -11,7 +11,7 @@ This repository contains a Python implementation of the A* algorithm with visual
 ## Usage
 
 1. Run the program.
-2. Enter the grid size (e.g., 25) when prompted.
+2. Enter the grid size (e.g. 25) when prompted.
 3. Enter the heuristic function to use (e for Euclidean, m for Manhattan).
 4. The program will open a pygame window.
 5. In the window, the green node at the top-left is the start node, and the red node in the bottom-right corner is the goal node.
