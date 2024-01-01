@@ -92,12 +92,10 @@ def astar_algorithm(grid, start_node, goal_node, heuristic_function):
     while not open_list.empty():
         print("Calculating path...")
         current_node = open_list.get()[2]
-        a = True
-        for node in explored_nodes:
-            if current_node.id == node.id:
-                a = False
-        if a == True:
+        
+        if not any(node.id == current_node.id for node in explored_nodes):
             explored_nodes.append(current_node)
+
         if current_node.x == goal_node.x and current_node.y == goal_node.y:
             path = []
             while current_node in came_from:
@@ -117,15 +115,12 @@ def astar_algorithm(grid, start_node, goal_node, heuristic_function):
                 if neighbor not in g_score or g < g_score[neighbor]:
                     count += 1
                     neighbor.f = g + heuristic(neighbor, goal_node, heuristic_function)
-                    j = True
-                    for i in open_list.queue:
-                        if neighbor.id == i[2].id:
-                            j = False
-                    if j == True:
+
+                    if not any(neighbor.id == i[2].id for i in open_list.queue):
                         open_list.put((neighbor.f, count, neighbor))
                         came_from[neighbor] = current_node
                         g_score[neighbor] = g
-
+    
     return None  
 
 
