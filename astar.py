@@ -105,16 +105,26 @@ def astar_algorithm(grid, start_node, goal_node, heuristic_function):
 
 
 def visualize(grid, path=None, explored_nodes=None):
-    plt.matshow(grid, cmap="gray", origin="upper")
+    fig, ax = plt.subplots()
+    ax.matshow(grid, cmap="gray", origin="upper")
 
     if explored_nodes:
-        i = 0
-        for node in explored_nodes:
-            plt.plot(node.y, node.x, color="blue", marker="s", markersize=10)
-            plt.pause(0.003)
-        for node in path:
-            plt.plot(node.y, node.x, color="red", marker="s", markersize=10)
-            plt.pause(0.003)
+        explored_points = np.array([(node.y, node.x) for node in explored_nodes])
+        explored_scatter = ax.scatter([], [], color="blue", marker="s", s=50)
+
+    if path:
+        path_points = np.array([(node.y, node.x) for node in path])
+        path_scatter = ax.scatter([], [], color="red", marker="s", s=50)
+
+    def update(frame):
+        if frame < len(explored_nodes):
+            explored_scatter.set_offsets(explored_points[:frame + 1])
+        elif frame < len(explored_nodes) + len(path):
+            path_frame = frame - len(explored_nodes)
+            path_scatter.set_offsets(path_points[:path_frame + 1])
+
+    frames = len(explored_nodes) + len(path)
+    anim = FuncAnimation(fig, update, frames=frames, interval=50, repeat=False)
 
     plt.title("A* Algorithm Visualization")
     plt.xlabel("Y")
