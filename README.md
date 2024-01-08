@@ -28,10 +28,11 @@ This repository contains a Python implementation of the A* algorithm with visual
 In the output, the blue nodes represent the explored nodes, and the red nodes represent the path.
 
 ## Input grid:
-![image](https://github.com/Nisarg236/aStar/assets/71684502/51afc007-8970-4c45-9c85-4bbf3371e0ac)
+![image](https://github.com/Nisarg236/aStar/assets/71684502/30edb76d-254e-4138-9c6a-1a256c98b47d)
+
 
 ## Output using Manhattan:
-![image](https://github.com/Nisarg236/aStar/assets/71684502/d9a5ee41-169e-4ae1-b7c8-f331746de8a7)
+![image](https://github.com/Nisarg236/aStar/assets/71684502/76ea4352-4eab-4dce-a8b9-91d2704362aa)
 
 ## How to Contribute
 
