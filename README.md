@@ -19,10 +19,11 @@ This repository contains a Python implementation of the A* algorithm with visual
 7. The algorithm will start, and upon completion, it will display the output.
 
 ## Input grid
-![image](https://github.com/Nisarg236/aStar/assets/71684502/6f93b30e-d9c3-497c-a7fe-dc461ce11fc3)
+![image](https://github.com/Nisarg236/aStar/assets/71684502/2968ba6a-1d5e-45a3-a0fd-804faf74fda2)
+
 
 ## Output with Euclidian:
-![image](https://github.com/Nisarg236/aStar/assets/71684502/98e296e5-2d2f-459e-8737-76cf037bebc5)
+![image](https://github.com/Nisarg236/aStar/assets/71684502/571cdf06-1c54-4194-9ce5-a080c543274c)
 
 In the output, the blue nodes represent the explored nodes, and the red nodes represent the path.
 
