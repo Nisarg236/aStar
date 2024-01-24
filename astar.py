@@ -61,6 +61,7 @@ def find_neighbours(node, grid, goal, open_list):
                 neighbours.append(neighbour_s)
     return neighbours
 
+# def djikstra(grid, start, goal):
 def astar_algorithm(grid, start, goal, heuristic_function):
     open_list = PriorityQueue() #We are using priority queue and arranging based on F score because we have to frequently fetch the node with least f score
     closed_set = set() #set is used to prevent duplication
